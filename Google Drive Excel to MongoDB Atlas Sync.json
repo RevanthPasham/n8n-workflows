@@ -1,0 +1,189 @@
+{
+  "name": "Google Drive Excel to MongoDB Atlas Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFile",
+        "fileToWatch": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1iw70pU2dUd920iW4BD0dfm1XxiHhk2Yvp1HkVEkEaYk/edit?usp=drive_link",
+          "mode": "url"
+        }
+      },
+      "id": "a0663721-b394-44a7-931e-77b9a4ed0b25",
+      "name": "Watch Excel File Changes",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        64,
+        320
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qhmwFLn1qMPMDANZ",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "227f5174-fd35-428e-bd6c-4d8e7a96530d",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "409a1459-32cd-4296-9b4d-f41309f05f11",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1iw70pU2dUd920iW4BD0dfm1XxiHhk2Yvp1HkVEkEaYk/edit?usp=drive_link",
+          "mode": "url"
+        },
+        "options": {
+          "binaryPropertyName": "data"
+        }
+      },
+      "id": "69bb845f-4a82-4281-865f-287d0f10f3c3",
+      "name": "Download Excel File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        512,
+        320
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qhmwFLn1qMPMDANZ",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "xls",
+        "options": {
+          "includeEmptyCells": true,
+          "rawData": true
+        }
+      },
+      "id": "3e71a309-c66c-40e4-9431-123c94bcaa99",
+      "name": "Extract Excel Data",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        736,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "=food",
+        "fields": "name,imagelink,price,flavor",
+        "options": {}
+      },
+      "id": "8fbdbebe-0613-49fd-bc83-582765f84c22",
+      "name": "Insert into MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        320
+      ],
+      "notesInFlow": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "fsmt5Rk128KlwsR0",
+          "name": "MongoDB account"
+        }
+      },
+      "notes": "you get the data with names,imageslink,price,flavor  and tha values add into the mongo atlas in the form of json"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Watch Excel File Changes": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Download Excel File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Excel File": {
+      "main": [
+        [
+          {
+            "node": "Extract Excel Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Excel Data": {
+      "main": [
+        [
+          {
+            "node": "Insert into MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "8310c2fb-f5a8-422d-9288-4aab92ca7a12",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f949377907a42b7c2e4d884a24523aa95ab8f2eabdcb10ef5646ab5e97977a7d"
+  },
+  "id": "W7BPGggho3fhtTvU",
+  "tags": []
+}
