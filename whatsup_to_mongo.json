@@ -1,0 +1,289 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "8bac3b99-e3af-4d9d-966f-642aa1539e12",
+      "name": "WhatsApp Message Received",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        3504,
+        576
+      ],
+      "webhookId": "0cc648ab-328c-4cd1-a2d2-819af0137a95",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "6EjUefd5PRBPz6Iy",
+          "name": "WhatsApp OAuth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "mongoCollection",
+              "value": "<__PLACEHOLDER_VALUE__MongoDB collection name for storing data__>",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "notificationCollection",
+              "value": "<__PLACEHOLDER_VALUE__MongoDB collection name to watch for updates__>",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "6ca61256-29cd-45eb-9642-a3009d5fefbc",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3728,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "food",
+        "fields": "=name,imagelink,price,flavor",
+        "options": {}
+      },
+      "id": "8616e5a8-240a-4582-9628-f67227015eaf",
+      "name": "Insert into MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        4176,
+        576
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "fsmt5Rk128KlwsR0",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "840522745814108",
+        "recipientPhoneNumber": "+919100894542",
+        "textBody": "=Update detected: {{ $json.name }} - {{ $json.coffee }}",
+        "additionalFields": {}
+      },
+      "id": "fb1e3bf2-0ed7-4b1d-b32a-f131ec410f86",
+      "name": "Send WhatsApp Notification",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        4320,
+        800
+      ],
+      "webhookId": "c36d1b67-f90c-4cf5-a2a7-b1a806b8d211",
+      "alwaysOutputData": true,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lEHgAQgg2XFG263j",
+          "name": "WhatsApp account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds"
+            }
+          ]
+        }
+      },
+      "id": "c8dcc490-4bc9-466c-b924-19e4d2dac721",
+      "name": "Schedule - Check MongoDB Updates",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        3504,
+        800
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "notificationCollection",
+              "value": "<__PLACEHOLDER_VALUE__MongoDB collection name to watch for updates__>",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "8a64b0a5-387b-40fc-b8fe-732f7570616e",
+      "name": "Workflow Configuration 2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3728,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "8d6a8b4a-7b79-4039-b16c-c971e8129690",
+      "name": "Check MongoDB for Updates",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        3952,
+        800
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "fsmt5Rk128KlwsR0",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "name",
+              "value": "={{ $json.messages[0].text.body.split(',').find(part => part.includes('name=')).split('=')[1].trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "imagelink",
+              "value": "={{ $json.messages[0].text.body.split(',').find(part => part.includes('imagelink=')).split('=')[1].trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "price",
+              "value": "={{ $json.messages[0].text.body.split(',').find(part => part.includes('price=')).split('=')[1].trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "flavor",
+              "value": "={{ $json.messages[0].text.body.split(',').find(part => part.includes('flavor=')).split('=')[1].trim() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "38f89ef5-c65d-4892-8e20-d6a7b4827494",
+      "name": "Parse WhatsApp Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3952,
+        576
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Message Received": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule - Check MongoDB Updates": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration 2": {
+      "main": [
+        [
+          {
+            "node": "Check MongoDB for Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check MongoDB for Updates": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Parse WhatsApp Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse WhatsApp Message": {
+      "main": [
+        [
+          {
+            "node": "Insert into MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7fedf444-6ae3-4606-a2a5-0405088bb7e0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f949377907a42b7c2e4d884a24523aa95ab8f2eabdcb10ef5646ab5e97977a7d"
+  },
+  "id": "uFi7AtwaV8CsDSGb",
+  "tags": []
+}
